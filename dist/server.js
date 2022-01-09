@@ -17,6 +17,12 @@ const discord_js_1 = require("discord.js");
 const client = new discord_js_1.Client({ intents: [discord_js_1.Intents.FLAGS.GUILDS, discord_js_1.Intents.FLAGS.GUILD_MESSAGES, discord_js_1.Intents.FLAGS.DIRECT_MESSAGES, discord_js_1.Intents.FLAGS.GUILD_PRESENCES, discord_js_1.Intents.FLAGS.GUILD_MEMBERS], partials: ["CHANNEL"] });
 client.login(process.env.TOKEN);
 const mongoose_1 = __importDefault(require("mongoose"));
+const botCommands_1 = require("./botconfig/botCommands");
+const role_1 = require("./botconfig/role");
+const add_1 = require("./commands/add");
+const commands_1 = require("./commands/commands");
+const create_1 = require("./commands/create");
+const help_1 = require("./commands/help");
 const guild_1 = require("./database/guild");
 const guildjoin_1 = require("./events/guildjoin");
 const memberUpdate_1 = require("./events/memberUpdate");
@@ -36,6 +42,43 @@ client.on('ready', () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log(`Logged in as ${(_a = client.user) === null || _a === void 0 ? void 0 : _a.tag}!`);
         (_b = client.user) === null || _b === void 0 ? void 0 : _b.setActivity('DM me commands', { type: 'LISTENING' });
+    }
+    catch (error) {
+        console.log(error);
+    }
+}));
+// ====================Event triggered when a message has been sent=====================
+client.on('messageCreate', (msg) => __awaiter(void 0, void 0, void 0, function* () {
+    if (msg.author.bot)
+        return;
+    try {
+        if (msg.channel.type === 'DM') {
+            if (msg.content === botCommands_1.Command.commands.toString()) {
+                yield (0, commands_1.commands)(msg.channel);
+            }
+            else if (msg.content === botCommands_1.Command.help.toString()) {
+                yield (0, help_1.help)(msg.channel);
+            }
+            else if (msg.content === botCommands_1.Command.log.toString()) {
+                // await command_log(msg.channel, msg.author, client);
+            }
+            else if (msg.content === botCommands_1.Command.create.toString()) {
+                yield (0, create_1.create)(msg.channel, msg.author);
+            }
+            else if (msg.content === botCommands_1.Command.add.toString()) {
+                yield (0, add_1.add)(msg.channel);
+            }
+        }
+        else if (msg.channel.type === 'GUILD_TEXT') //text channel massage
+         {
+            if (msg.content === `${role_1.PREFIX.toString()}setup`) {
+                // const { status, role, error } = await command_setup(msg.guild, msg.member);
+                // if (error) return msg.reply(`something went wrong.`);
+                // if (!status && !role) return msg.reply(`Only members with **Administrator** role have the permission to ceate or update role.`);
+                // if (!status && role) return msg.reply(`ROLE ${role} is already created.Delete the role inorder to create another.`);
+                // msg.reply(`ROLE ${role} is Created And Updated.`)
+            }
+        }
     }
     catch (error) {
         console.log(error);
