@@ -43,7 +43,6 @@ const sendMessage=async(client:Client,message:Message):Promise<void> =>{
         const guildMembers = getGuildMembersFromId(guild, message.members || [])
         if (message.type === MessageType.CHANNEL) {
             const validChannels:Array<Channel> = getChannelsFromId(guild,message.channels||[]);
-            
             validChannels.forEach(async (c) => {
                 if(!(c instanceof BaseGuildTextChannel))return;
                 const roles:Array<Role> = getRolessFromId(guild, message.roles||[]);
