@@ -1,6 +1,6 @@
 require("dotenv").config();
-import { Client, Intents,Guild,Role,GuildMember } from 'discord.js';
-const client:Client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MEMBERS], partials: ["CHANNEL"] });
+import { Client, Intents,Guild,Role,GuildMember, Interaction,ApplicationCommandData } from 'discord.js';
+const client:Client = new Client({ intents: [Intents.FLAGS.GUILDS ,Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_PRESENCES, Intents.FLAGS.GUILD_MEMBERS], partials: ["CHANNEL"] });
 client.login(process.env.TOKEN);
 import mongoose from 'mongoose';
 import { Command } from './botconfig/botCommands';
@@ -14,8 +14,10 @@ import { GuildModel } from './database/guild';
 import { MessageModel } from './database/message';
 import { guildJoin } from './events/guildjoin';
 import { memberUpdate } from './events/memberUpdate';
-import { handleMessageData } from './functions/findData';
-import { sendMessage } from './functions/sendMessage';
+import { MessageHandler } from './functions/findData';
+import { view } from './slash_commands/view';
+import {add as slash_add} from './slash_commands/add';
+import { remove as slash_remove } from './slash_commands/remove';
 const connectMongo = async () => {
   try {
     const response = await mongoose.connect(process.env.DATABASE||'',)
@@ -31,8 +33,35 @@ client.on('ready', async () => {
   try {
     console.log(`Logged in as ${client.user?.tag}!`);
     client.user?.setActivity('DM me commands', { type: 'LISTENING' });
-    await handleMessageData(client);
-    MessageModel.watch().on('change', () => handleMessageData(client));
+    client.application?.commands.create({
+      name:'create',
+      description:'create a message'
+    })
+    client.guilds.cache.forEach((g:Guild)=>{
+      if(!g.available)return;
+      g.commands.create({
+        name:'view',
+        description:'view the valid users'
+      })
+      g.commands.create({
+        name:'add',
+        description:'add a member to the valid list',
+        options:[
+          {name:'member',description:'member of the guild',type:'USER',required:true}
+        ]
+      })
+      g.commands.create({
+        name:'remove',
+        description:'remove a member from the valid list',
+        options:[
+          {name:'member',description:'member of the guild',type:'USER',required:true}
+        ]
+      })
+    })
+
+    const handler=new MessageHandler();
+    await handler.handleMessageData(client);
+    MessageModel.watch().on('change', () => handler.handleMessageData(client));
   } catch (error) {
     console.log(error);
   }
@@ -114,3 +143,31 @@ client.on('guildDelete', async (g) => {
     }
   })
 
+  client.on('interactionCreate',async(interaction:Interaction)=>{
+    try {
+      if(!interaction.isCommand())return;
+      if (interaction.commandName==='user') {
+        await interaction.reply({
+          ephemeral:true,
+          content:'hello'
+        })
+      }
+      if(interaction.commandName==='view'){
+        await view(interaction);
+      }
+      if(interaction.commandName==='add'){
+        await slash_add(interaction);
+      }
+      if(interaction.commandName==='remove'){
+        await slash_remove(interaction);
+      }
+    } catch (error) {
+      console.log(error);
+      if(interaction.isCommand()){
+        await interaction.reply({
+          content: `something went wrong`,
+          ephemeral: true
+        })
+      }
+    }
+  })
