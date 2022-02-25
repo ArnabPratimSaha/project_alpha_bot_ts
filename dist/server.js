@@ -23,9 +23,15 @@ const add_1 = require("./commands/add");
 const commands_1 = require("./commands/commands");
 const create_1 = require("./commands/create");
 const help_1 = require("./commands/help");
+const setup_1 = require("./commands/setup");
 const guild_1 = require("./database/guild");
+const message_1 = require("./database/message");
 const guildjoin_1 = require("./events/guildjoin");
 const memberUpdate_1 = require("./events/memberUpdate");
+const findData_1 = require("./functions/findData");
+const view_1 = require("./slash_commands/view");
+const add_2 = require("./slash_commands/add");
+const remove_1 = require("./slash_commands/remove");
 const connectMongo = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield mongoose_1.default.connect(process.env.DATABASE || '');
@@ -38,10 +44,39 @@ const connectMongo = () => __awaiter(void 0, void 0, void 0, function* () {
 connectMongo();
 // ====================Event triggered when the bot is ready to start working=====================
 client.on('ready', () => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         console.log(`Logged in as ${(_a = client.user) === null || _a === void 0 ? void 0 : _a.tag}!`);
         (_b = client.user) === null || _b === void 0 ? void 0 : _b.setActivity('DM me commands', { type: 'LISTENING' });
+        (_c = client.application) === null || _c === void 0 ? void 0 : _c.commands.create({
+            name: 'create',
+            description: 'create a message'
+        });
+        client.guilds.cache.forEach((g) => {
+            if (!g.available)
+                return;
+            g.commands.create({
+                name: 'view',
+                description: 'view the valid users'
+            });
+            g.commands.create({
+                name: 'add',
+                description: 'add a member to the valid list',
+                options: [
+                    { name: 'member', description: 'member of the guild', type: 'USER', required: true }
+                ]
+            });
+            g.commands.create({
+                name: 'remove',
+                description: 'remove a member from the valid list',
+                options: [
+                    { name: 'member', description: 'member of the guild', type: 'USER', required: true }
+                ]
+            });
+        });
+        const handler = new findData_1.MessageHandler();
+        yield handler.handleMessageData(client);
+        message_1.MessageModel.watch().on('change', () => handler.handleMessageData(client));
     }
     catch (error) {
         console.log(error);
@@ -72,11 +107,15 @@ client.on('messageCreate', (msg) => __awaiter(void 0, void 0, void 0, function* 
         else if (msg.channel.type === 'GUILD_TEXT') //text channel massage
          {
             if (msg.content === `${role_1.PREFIX.toString()}setup`) {
-                // const { status, role, error } = await command_setup(msg.guild, msg.member);
-                // if (error) return msg.reply(`something went wrong.`);
-                // if (!status && !role) return msg.reply(`Only members with **Administrator** role have the permission to ceate or update role.`);
-                // if (!status && role) return msg.reply(`ROLE ${role} is already created.Delete the role inorder to create another.`);
-                // msg.reply(`ROLE ${role} is Created And Updated.`)
+                try {
+                    const role = yield (0, setup_1.setup)(msg.channel.guild);
+                    yield msg.reply(`ROLE ${role} is Created And Updated.`);
+                }
+                catch (error) {
+                    if (error instanceof Error) {
+                        yield msg.reply(error.message);
+                    }
+                }
             }
         }
     }
@@ -123,5 +162,35 @@ client.on('roleDelete', (role) => __awaiter(void 0, void 0, void 0, function* ()
     }
     catch (error) {
         console.log(error);
+    }
+}));
+client.on('interactionCreate', (interaction) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!interaction.isCommand())
+            return;
+        if (interaction.commandName === 'user') {
+            yield interaction.reply({
+                ephemeral: true,
+                content: 'hello'
+            });
+        }
+        if (interaction.commandName === 'view') {
+            yield (0, view_1.view)(interaction);
+        }
+        if (interaction.commandName === 'add') {
+            yield (0, add_2.add)(interaction);
+        }
+        if (interaction.commandName === 'remove') {
+            yield (0, remove_1.remove)(interaction);
+        }
+    }
+    catch (error) {
+        console.log(error);
+        if (interaction.isCommand()) {
+            yield interaction.reply({
+                content: `something went wrong`,
+                ephemeral: true
+            });
+        }
     }
 }));

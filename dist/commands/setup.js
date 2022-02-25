@@ -31,9 +31,10 @@ const setup = (guild) => __awaiter(void 0, void 0, void 0, function* () {
                     reason: 'role created for the user to be able to use the bot',
                 });
                 guildData.roleID = newRole.id;
+                yield guildData.save();
+                return newRole;
             }
-            yield guildData.save();
-            return;
+            throw new Error(`${role_1.ROLE.ROLE_NAME} already present`);
         }
         const role = yield guild.roles.create({
             name: role_1.ROLE.ROLE_NAME,
@@ -51,9 +52,15 @@ const setup = (guild) => __awaiter(void 0, void 0, void 0, function* () {
             status: true
         });
         yield newGuild.save();
+        return role;
     }
     catch (error) {
-        console.log(error);
+        if (error instanceof Error) {
+            throw error;
+        }
+        else {
+            console.log(error);
+        }
     }
 });
 exports.setup = setup;
