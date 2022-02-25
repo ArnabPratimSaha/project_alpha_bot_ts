@@ -29,7 +29,7 @@ const getGuildMembersFromId=(guild:Guild,query:Array<String>):Array<GuildMember>
     return validMembers;
 }
 const getMessage = (title:String, message:String, sender:User) => {
-    return `Message created By <@${sender}>\n\n**${title}**\n${message}\n`;
+    return `Message created By ${sender}\n${title?`**${title}**\n`:''}${message}\n`;
 }
 const sendMessage=async(client:Client,message:Message):Promise<void> =>{
     try {
