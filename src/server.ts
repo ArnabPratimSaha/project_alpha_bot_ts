@@ -114,14 +114,17 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
   });
 client.on('guildCreate',async(g:Guild)=>{
     try {
+      console.log('join');
+      
         const guild:Guild=await g.fetch();
         await guildJoin(guild);
     } catch (error) {
-        
+      console.log(error);
     }
 });
 client.on('guildDelete', async (g) => {
     try {
+      console.log('leave');
       const guildData = await GuildModel.findOne({ guildID: g.id });
       if (guildData) {
         guildData.status = false;

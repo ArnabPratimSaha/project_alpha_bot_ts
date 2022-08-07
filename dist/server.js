@@ -133,14 +133,17 @@ client.on('guildMemberUpdate', (oldMember, newMember) => __awaiter(void 0, void 
 }));
 client.on('guildCreate', (g) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('join');
         const guild = yield g.fetch();
         yield (0, guildjoin_1.guildJoin)(guild);
     }
     catch (error) {
+        console.log(error);
     }
 }));
 client.on('guildDelete', (g) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('leave');
         const guildData = yield guild_1.GuildModel.findOne({ guildID: g.id });
         if (guildData) {
             guildData.status = false;

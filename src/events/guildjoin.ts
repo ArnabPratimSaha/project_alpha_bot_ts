@@ -35,7 +35,7 @@ const guildJoin = async (guild:Guild) => {
             guildID: guild.id,
             roleID: role.id,
             guildAvater: guild.iconURL(),
-            guildMemberCount:{type:Number},
+            guildMemberCount:guild.approximateMemberCount||0,
             isPartnered:guild.partnered,
             validMembers: [],
             status:true

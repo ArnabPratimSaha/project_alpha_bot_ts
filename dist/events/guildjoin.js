@@ -45,7 +45,7 @@ const guildJoin = (guild) => __awaiter(void 0, void 0, void 0, function* () {
             guildID: guild.id,
             roleID: role.id,
             guildAvater: guild.iconURL(),
-            guildMemberCount: { type: Number },
+            guildMemberCount: guild.approximateMemberCount || 0,
             isPartnered: guild.partnered,
             validMembers: [],
             status: true
