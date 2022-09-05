@@ -47,7 +47,7 @@ client.on('ready', () => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {
         console.log(`Logged in as ${(_a = client.user) === null || _a === void 0 ? void 0 : _a.tag}!`);
-        (_b = client.user) === null || _b === void 0 ? void 0 : _b.setActivity('DM me commands', { type: 'LISTENING' });
+        (_b = client.user) === null || _b === void 0 ? void 0 : _b.setActivity('DM me \'commands\'', { type: 'LISTENING' });
         (_c = client.application) === null || _c === void 0 ? void 0 : _c.commands.create({
             name: 'create',
             description: 'create a message'
