@@ -18,6 +18,8 @@ import { MessageHandler } from './functions/findData';
 import { view } from './slash_commands/view';
 import {add as slash_add} from './slash_commands/add';
 import { remove as slash_remove } from './slash_commands/remove';
+
+
 const connectMongo = async () => {
   try {
     const response = await mongoose.connect(process.env.DATABASE||'',)
@@ -32,7 +34,8 @@ connectMongo();
 client.on('ready', async () => {
   try {
     console.log(`Logged in as ${client.user?.tag}!`);
-    client.user?.setActivity('DM me commands', { type: 'LISTENING' });
+    client.user?.setActivity('DM me \'commands\'', { type: 'LISTENING' })
+    ;
     client.application?.commands.create({
       name:'create',
       description:'create a message'
