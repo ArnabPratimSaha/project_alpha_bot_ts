@@ -61,8 +61,7 @@ const sendMessage = (client, message) => __awaiter(void 0, void 0, void 0, funct
                 const roles = getRolessFromId(guild, message.roles || []);
                 try {
                     yield c.send({
-                        content: `${guildMembers.map(m => `<@${m.id}> `)} ${roles.map(r => (r.id !== guild.roles.everyone.id) ? `<@&${r.id}> ` : `${r.name} `)}\n
-                            ${getMessage(message.title, message.message, user)}`,
+                        content: `${guildMembers.map(m => `<@${m.id}> `)} ${roles.map(r => (r.id !== guild.roles.everyone.id) ? `<@&${r.id}> ` : `${r.name} `)}\n${getMessage(message.title, message.message, user)}`,
                         embeds: [embeded]
                     });
                 }
