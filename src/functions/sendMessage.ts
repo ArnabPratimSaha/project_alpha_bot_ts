@@ -48,8 +48,7 @@ const sendMessage=async(client:Client,message:Message):Promise<void> =>{
                 const roles:Array<Role> = getRolessFromId(guild, message.roles||[]);
                 try {
                     await c.send({
-                        content: `${guildMembers.map(m=>`<@${m.id}> `)} ${roles.map(r=>(r.id!==guild.roles.everyone.id)?`<@&${r.id}> `:`${r.name} `)}\n
-                            ${getMessage(message.title, message.message, user)}`,
+                        content: `${guildMembers.map(m=>`<@${m.id}> `)} ${roles.map(r=>(r.id!==guild.roles.everyone.id)?`<@&${r.id}> `:`${r.name} `)}\n${getMessage(message.title, message.message, user)}`,
                         embeds: [embeded]
                     });
                 } catch (e) {
